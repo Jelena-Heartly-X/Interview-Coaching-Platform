@@ -1,9 +1,10 @@
-package com.interviewcoaching.controllers;
+package com.interviewcoaching.controllers.auth;
 
 import com.interviewcoaching.dto.AuthRequest;
 import com.interviewcoaching.dto.AuthResponse;
-import com.interviewcoaching.models.User;
-import com.interviewcoaching.services.AuthService;
+import com.interviewcoaching.dto.PasswordResetRequest;  
+import com.interviewcoaching.models.auth.User;
+import com.interviewcoaching.services.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

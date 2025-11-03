@@ -1,7 +1,7 @@
 package com.interviewcoaching.config;
 
-import com.interviewcoaching.services.UserService;
-import com.interviewcoaching.utils.JwtUtils;
+import com.interviewcoaching.services.auth.UserService;
+import com.interviewcoaching.utils.auth.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

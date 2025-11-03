@@ -1,4 +1,4 @@
-package com.interviewcoaching.models;
+package com.interviewcoaching.models.auth;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

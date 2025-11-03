@@ -1,11 +1,12 @@
-package com.interviewcoaching.services;
+package com.interviewcoaching.services.auth;
 
+import java.util.List;
 import com.interviewcoaching.dto.AuthRequest;
 import com.interviewcoaching.dto.AuthResponse;
 import com.interviewcoaching.dto.PasswordResetRequest;
-import com.interviewcoaching.models.User;
-import com.interviewcoaching.repositories.UserRepository;
-import com.interviewcoaching.utils.JwtUtils;
+import com.interviewcoaching.models.auth.User;
+import com.interviewcoaching.repositories.auth.UserRepository;
+import com.interviewcoaching.utils.auth.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

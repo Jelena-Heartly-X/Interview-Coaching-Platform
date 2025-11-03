@@ -1,4 +1,4 @@
-package com.interviewcoaching.utils;
+package com.interviewcoaching.utils.auth;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
