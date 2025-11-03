@@ -1,3 +1,15 @@
+com\interviewcoaching\services\auth\AuthService.class
+com\interviewcoaching\models\auth\User.class
+com\interviewcoaching\dto\AuthRequest.class
+com\interviewcoaching\dto\PasswordResetRequest.class
+com\interviewcoaching\utils\auth\JwtUtils.class
 com\interviewcoaching\Application.class
-com\interviewcoaching\models\User.class
-com\interviewcoaching\utils\JwtUtils.class
+com\interviewcoaching\services\auth\UserService.class
+com\interviewcoaching\controllers\auth\AuthController$ErrorResponse.class
+com\interviewcoaching\controllers\auth\AuthController.class
+com\interviewcoaching\dto\AuthResponse.class
+com\interviewcoaching\repositories\auth\UserRepository.class
+com\interviewcoaching\config\SecurityConfig.class
+com\interviewcoaching\controllers\TestController.class
+com\interviewcoaching\controllers\auth\AuthController$MessageResponse.class
+com\interviewcoaching\config\JwtAuthenticationFilter.class

@@ -1,7 +1,7 @@
-package com.interviewcoaching.services;
+package com.interviewcoaching.services.auth;
 
-import com.interviewcoaching.models.User;
-import com.interviewcoaching.repositories.UserRepository;
+import com.interviewcoaching.models.auth.User;
+import com.interviewcoaching.repositories.auth.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
