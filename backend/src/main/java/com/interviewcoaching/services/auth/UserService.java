@@ -30,12 +30,26 @@ public class UserService implements UserDetailsService {
         );
     }
 
+    // ADD THIS METHOD - Fixes the error
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    }
+
     public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
         return userRepository.findByUsernameOrEmail(usernameOrEmail);
     }
 
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
+    }
+    
+    /**
+     * Get User entity by username or email
+     */
+    public User getUserByUsernameOrEmail(String usernameOrEmail) {
+        return userRepository.findByUsernameOrEmail(usernameOrEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public boolean existsByEmail(String email) {

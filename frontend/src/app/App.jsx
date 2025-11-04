@@ -5,11 +5,11 @@ import Login from '../features/auth/pages/Login/Login';
 import Register from '../features/auth/pages/Register/Register';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPassword';
 import Dashboard from '../features/user/pages/Dashboard/Dashboard'; // Import your dashboard
+import InterviewsPage from '../features/interviews/pages/InterviewsPage';
 import './App.css';
 
 // Temporary placeholder components
 const MockTestsPage = () => <div>Mock Tests Module - Coming Soon!</div>;
-const InterviewsPage = () => <div>Interviews Module - Coming Soon!</div>;
 const BanterArenaPage = () => <div>Banter Arena Module - Coming Soon!</div>;
 const AICoachPage = () => <div>AI Coach Module - Coming Soon!</div>;
 

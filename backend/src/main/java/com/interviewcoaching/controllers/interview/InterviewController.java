@@ -1,0 +1,205 @@
+package com.interviewcoaching.controllers.interview;
+
+import com.interviewcoaching.dto.interview.AnswerSubmitRequest;
+import com.interviewcoaching.dto.interview.InterviewStartRequest;
+import com.interviewcoaching.models.auth.User;
+import com.interviewcoaching.models.interview.*;
+import com.interviewcoaching.services.auth.UserService;
+import com.interviewcoaching.services.interview.InterviewService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import javax.validation.Valid;
+
+import java.security.Principal;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/interviews")
+@CrossOrigin(origins = "http://localhost:3000")
+public class InterviewController {
+    
+    @Autowired
+    private InterviewService interviewService;
+    
+    @Autowired
+    private UserService userService;
+    
+    /**
+     * Start a new interview
+     */
+    @PostMapping("/start")
+    public ResponseEntity<?> startInterview(@Valid @RequestBody InterviewStartRequest request, Principal principal) {
+        try {
+            // Get current user
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            
+            // Start interview
+            Interview interview = interviewService.startInterview(user, request);
+            
+            // Get questions for the interview from the interview object
+            List<Question> questions = interview.getInterviewQuestions().stream()
+                .map(InterviewQuestion::getQuestion)
+                .collect(Collectors.toList());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("interview", interview);
+            response.put("questions", questions);
+            response.put("message", "Interview started successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+    
+    /**
+     * Submit an answer
+     */
+    @PostMapping("/{interviewId}/questions/{questionId}/submit-answer")
+    public ResponseEntity<?> submitAnswer(
+            @PathVariable Long interviewId,
+            @PathVariable Long questionId,
+            @Valid @RequestBody AnswerSubmitRequest request,
+            Principal principal) {
+        try {
+            // Get the current user
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            
+            InterviewResponse response = interviewService.submitAnswer(interviewId, questionId, request, user);
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("response", response);
+            result.put("message", "Answer submitted successfully");
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * Complete interview
+     */
+    @PostMapping("/{interviewId}/complete")
+    public ResponseEntity<?> completeInterview(
+            @PathVariable Long interviewId,
+            Principal principal) {
+        try {
+            // Get current user
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            
+            // Complete the interview
+            Interview interview = interviewService.completeInterview(interviewId, user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("interview", interview);
+            response.put("message", "Interview completed successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * Get interview details
+     */
+    @GetMapping("/{interviewId}")
+    public ResponseEntity<?> getInterview(
+            @PathVariable Long interviewId,
+            Principal principal) {
+        try {
+            // Get current user
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            
+            // Get interview details for the authenticated user
+            Interview interview = interviewService.getInterviewDetails(interviewId, user);
+            
+            return ResponseEntity.ok(interview);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+    }
+    
+    /**
+     * Get user's interview history
+     */
+    @GetMapping("/history")
+    public ResponseEntity<?> getInterviewHistory(Principal principal) {
+        try {
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            List<Interview> interviews = interviewService.getInterviewHistory(user);
+            
+            return ResponseEntity.ok(interviews);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+    
+    /**
+     * Get completed interviews
+     */
+    @GetMapping("/completed")
+    public ResponseEntity<?> getCompletedInterviews(Principal principal) {
+        try {
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            List<Interview> interviews = interviewService.getCompletedInterviews(user);
+            
+            return ResponseEntity.ok(interviews);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+    
+    /**
+     * Cancel interview
+     */
+    @PutMapping("/{interviewId}/cancel")
+    public ResponseEntity<?> cancelInterview(
+            @PathVariable Long interviewId,
+            Principal principal) {
+        try {
+            // Get current user
+            String username = principal != null ? principal.getName() : "testuser";
+            User user = userService.getUserByUsernameOrEmail(username);
+            
+            // Cancel the interview
+            Interview interview = interviewService.cancelInterview(interviewId, user);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("interview", interview);
+            response.put("message", "Interview cancelled successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+}
