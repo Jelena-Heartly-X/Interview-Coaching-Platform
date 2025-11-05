@@ -164,17 +164,6 @@
   border: 1px solid #fecaca;
 }
 
-.info-message {
-  color: #1e40af;
-  background-color: #dbeafe;
-  border: 1px solid #93c5fd;
-  text-align: center;
-  padding: 1.5rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .interview-lobby {

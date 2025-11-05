@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,6 +155,44 @@ public class InterviewSlotController {
             
             Map<String, String> response = new HashMap<>();
             response.put("message", "Slot deleted successfully");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * Seed sample interview slots for testing
+     */
+    @PostMapping("/seed")
+    public ResponseEntity<?> seedSlots() {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            
+            // Create 5 sample slots
+            String[] topics = {"Java", "Python", "System Design", "Data Structures", "Algorithms"};
+            String[] difficulties = {"EASY", "MEDIUM", "HARD", "MEDIUM", "HARD"};
+            int[] durations = {30, 45, 60, 45, 60};
+            
+            for (int i = 0; i < topics.length; i++) {
+                InterviewSlot slot = new InterviewSlot();
+                slot.setTitle("Mock Interview - " + topics[i]);
+                slot.setDescription("Practice interview session for " + topics[i]);
+                slot.setTopic(topics[i]);
+                slot.setDifficultyLevel(difficulties[i]);
+                slot.setDurationMinutes(durations[i]);
+                slot.setScheduledDateTime(now.plusDays(i + 1).plusHours(10));
+                slot.setMaxParticipants(1);
+                
+                slotService.createSlot(slot);
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Sample slots created successfully");
+            response.put("count", topics.length);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {

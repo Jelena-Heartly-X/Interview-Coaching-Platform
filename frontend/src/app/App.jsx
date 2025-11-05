@@ -6,6 +6,7 @@ import Register from '../features/auth/pages/Register/Register';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPassword';
 import Dashboard from '../features/user/pages/Dashboard/Dashboard'; // Import your dashboard
 import InterviewsPage from '../features/interviews/pages/InterviewsPage';
+import InterviewRoom from '../features/interviews/components/InterviewRoom';
 import './App.css';
 
 // Temporary placeholder components
@@ -30,6 +31,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/mock-tests" element={<MockTestsPage />} />
           <Route path="/interviews" element={<InterviewsPage />} />
+          <Route path="/interview/:interviewId" element={<InterviewRoom />} />
           <Route path="/banter-arena" element={<BanterArenaPage />} />
           <Route path="/ai-coach" element={<AICoachPage />} />
           

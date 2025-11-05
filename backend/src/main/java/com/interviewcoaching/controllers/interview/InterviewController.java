@@ -2,6 +2,8 @@ package com.interviewcoaching.controllers.interview;
 
 import com.interviewcoaching.dto.interview.AnswerSubmitRequest;
 import com.interviewcoaching.dto.interview.InterviewStartRequest;
+import com.interviewcoaching.dto.interview.InterviewDetailsDTO;
+import com.interviewcoaching.dto.interview.QuestionDTO;
 import com.interviewcoaching.models.auth.User;
 import com.interviewcoaching.models.interview.*;
 import com.interviewcoaching.services.auth.UserService;
@@ -44,20 +46,25 @@ public class InterviewController {
             // Start interview
             Interview interview = interviewService.startInterview(user, request);
             
-            // Get questions for the interview from the interview object
-            List<Question> questions = interview.getInterviewQuestions().stream()
+            // Convert to DTOs to avoid serialization issues
+            InterviewDetailsDTO interviewDTO = new InterviewDetailsDTO(interview);
+            
+            // Get questions and convert to DTOs
+            List<QuestionDTO> questionDTOs = interview.getInterviewQuestions().stream()
                 .map(InterviewQuestion::getQuestion)
+                .map(QuestionDTO::new)
                 .collect(Collectors.toList());
             
             Map<String, Object> response = new HashMap<>();
-            response.put("interview", interview);
-            response.put("questions", questions);
+            response.put("interview", interviewDTO);
+            response.put("questions", questionDTOs);
             response.put("message", "Interview started successfully");
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
+            e.printStackTrace(); // Log the error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
@@ -132,10 +139,25 @@ public class InterviewController {
             // Get interview details for the authenticated user
             Interview interview = interviewService.getInterviewDetails(interviewId, user);
             
-            return ResponseEntity.ok(interview);
+            // Convert to DTO to avoid serialization issues
+            InterviewDetailsDTO interviewDTO = new InterviewDetailsDTO(interview);
+            
+            // Get questions and convert to DTOs
+            List<QuestionDTO> questionDTOs = interview.getInterviewQuestions().stream()
+                .map(InterviewQuestion::getQuestion)
+                .map(QuestionDTO::new)
+                .collect(Collectors.toList());
+            
+            // Return interview with questions
+            Map<String, Object> response = new HashMap<>();
+            response.put("interview", interviewDTO);
+            response.put("questions", questionDTOs);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
+            e.printStackTrace(); // Log the error
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }

@@ -1,5 +1,6 @@
 package com.interviewcoaching.repositories.interview;
 
+import com.interviewcoaching.models.auth.User;
 import com.interviewcoaching.models.interview.UserSkillsAnalytics;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,4 +29,10 @@ public interface UserSkillsAnalyticsRepository extends JpaRepository<UserSkillsA
     // Find weak areas for improvement
     @Query("SELECT s FROM UserSkillsAnalytics s WHERE s.user.id = :userId AND s.accuracyPercentage < 60 ORDER BY s.totalAttempts DESC")
     List<UserSkillsAnalytics> findWeakAreasByUserId(@Param("userId") Long userId);
+    
+    // Find by user and topic (using User entity)
+    Optional<UserSkillsAnalytics> findByUserAndTopic(User user, String topic);
+    
+    // Find all by user (using User entity)
+    List<UserSkillsAnalytics> findByUser(User user);
 }

@@ -1,6 +1,8 @@
 // InterviewQuestion.java
 package com.interviewcoaching.models.interview;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -13,16 +15,19 @@ public class InterviewQuestion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @JsonIgnore
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interview_id", nullable = false)
     private Interview interview;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "testCases", "interviewQuestions"})
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToOne(mappedBy = "interviewQuestion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private InterviewResponse response;
     

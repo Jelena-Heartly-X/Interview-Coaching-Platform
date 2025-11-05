@@ -1,67 +1,117 @@
 // frontend/src/features/interviews/components/InterviewRoom.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { interviewApi } from '../services/interviewApi';
 import './InterviewRoom.css';
 
-const InterviewRoom = ({ interview, onComplete, onExit }) => {
+const InterviewRoom = () => {
+  const { interviewId } = useParams();
+  const navigate = useNavigate();
+  
+  const [interview, setInterview] = useState(null);
+  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [code, setCode] = useState('// Write your code here\n');
+  const [code, setCode] = useState('');
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const timerRef = useRef(null);
 
-  const currentQuestion = interview.questions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
 
-  // Start timer when component mounts
+  // Fetch interview data when component mounts
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeElapsed(prev => prev + 1);
-    }, 1000);
+    const fetchInterviewData = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching interview data for ID:', interviewId);
+        
+        const response = await interviewApi.getInterview(interviewId);
+        console.log('Interview data received:', response);
+        
+        if (response.interview) {
+          setInterview(response.interview);
+          setQuestions(response.questions || []);
+          
+          // Initialize code with template if available
+          if (response.questions && response.questions[0]) {
+            setCode(response.questions[0].codeTemplate || '// Write your code here\n');
+          }
+        } else {
+          throw new Error('Invalid interview data');
+        }
+      } catch (err) {
+        console.error('Error fetching interview:', err);
+        setError('Failed to load interview. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearInterval(timerRef.current);
-  }, []);
+    if (interviewId) {
+      fetchInterviewData();
+    }
+  }, [interviewId]);
+
+  // Start timer when interview data is loaded
+  useEffect(() => {
+    if (interview && !timerRef.current) {
+      timerRef.current = setInterval(() => {
+        setTimeElapsed(prev => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [interview]);
+
+  // Update code template when question changes
+  useEffect(() => {
+    if (currentQuestion && currentQuestion.codeTemplate) {
+      setCode(currentQuestion.codeTemplate);
+    } else if (currentQuestion) {
+      setCode('// Write your code here\n');
+    }
+  }, [currentQuestionIndex, currentQuestion]);
 
   const handleSubmitAnswer = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || !currentQuestion) return;
     
     setIsSubmitting(true);
-    console.log('Submitting answer...');
+    console.log('Submitting answer for question:', currentQuestion.id);
     
     try {
       const answerData = {
-        questionId: currentQuestion.id,
-        answer: answers[currentQuestion.id] || '',
+        answerText: answers[currentQuestion.id] || '',
         codeSubmission: code,
-        programmingLanguage: 'javascript',
+        programmingLanguage: 'java',
         timeTakenSeconds: timeElapsed,
+        hintsUsed: 0
       };
 
       console.log('Sending answer data:', answerData);
       
-      // For testing, log to console instead of making API call
-      console.log('Answer submitted (mock):', answerData);
+      // Submit answer to backend
+      const response = await interviewApi.submitAnswer(
+        interview.id,
+        currentQuestion.id,
+        answerData
+      );
       
-      // Mock API response
-      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log('Answer submitted successfully:', response);
       
       // Move to next question or complete interview
-      if (currentQuestionIndex < interview.questions.length - 1) {
+      if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setCode('// Write your code here\n');
       } else {
-        console.log('Interview completed!');
-        // Mock completion
-        const mockResults = {
-          overallScore: 85,
-          codeQualityScore: 90,
-          logicalReasoningScore: 80,
-          timeManagementScore: 85,
-          problemSolvingScore: 88,
-          aiFeedback: 'Great job on the interview! Your code was clean and efficient.'
-        };
-        onComplete(mockResults);
+        // Complete the interview
+        await handleCompleteInterview();
       }
     } catch (error) {
       console.error('Error submitting answer:', error);
@@ -71,42 +121,118 @@ const InterviewRoom = ({ interview, onComplete, onExit }) => {
     }
   };
 
+  const handleCompleteInterview = async () => {
+    try {
+      console.log('Completing interview...');
+      const response = await interviewApi.completeInterview(interview.id);
+      console.log('Interview completed:', response);
+      
+      // Navigate to results page or dashboard
+      alert('Interview completed successfully!');
+      navigate('/interviews');
+    } catch (error) {
+      console.error('Error completing interview:', error);
+      alert('Interview completed but there was an error processing results.');
+      navigate('/interviews');
+    }
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  if (loading) {
+    return (
+      <div className="interview-room">
+        <div className="loading">Loading interview...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="interview-room">
+        <div className="error">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={() => navigate('/interviews')}>Back to Interviews</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!interview || !currentQuestion) {
+    return (
+      <div className="interview-room">
+        <div className="error">No interview data available</div>
+      </div>
+    );
+  }
+
+  const isCodingQuestion = currentQuestion.questionType === 'CODING';
+
   return (
     <div className="interview-room">
       <div className="header">
-        <h2>Interview in Progress</h2>
-        <div className="timer">Time: {formatTime(timeElapsed)}</div>
+        <h2>{interview.title || 'Interview in Progress'}</h2>
+        <div className="interview-info">
+          <span className="timer">Time: {formatTime(timeElapsed)}</span>
+          <span className="difficulty">{interview.difficultyLevel}</span>
+        </div>
       </div>
 
       <div className="question-section">
-        <h3>Question {currentQuestionIndex + 1} of {interview.questions.length}</h3>
-        <p>{currentQuestion.text}</p>
+        <div className="question-header">
+          <h3>Question {currentQuestionIndex + 1} of {questions.length}</h3>
+          <span className="question-type">{currentQuestion.questionType}</span>
+          <span className="points">{currentQuestion.points} points</span>
+        </div>
         
-        {currentQuestion.type === 'coding' ? (
-          <div className="code-editor">
+        <h4>{currentQuestion.title}</h4>
+        <div className="question-description">
+          <p>{currentQuestion.description}</p>
+        </div>
+        
+        {currentQuestion.constraintsInfo && (
+          <div className="constraints">
+            <strong>Constraints:</strong>
+            <p>{currentQuestion.constraintsInfo}</p>
+          </div>
+        )}
+        
+        {isCodingQuestion ? (
+          <div className="code-editor-section">
+            <h5>Code Editor</h5>
             <Editor
-              height="300px"
-              defaultLanguage="javascript"
+              height="400px"
+              defaultLanguage="java"
               value={code}
               onChange={(value) => setCode(value || '')}
-              options={{ minimap: { enabled: false } }}
+              theme="vs-dark"
+              options={{ 
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true
+              }}
             />
           </div>
         ) : (
-          <textarea
-            value={answers[currentQuestion.id] || ''}
-            onChange={(e) => 
-              setAnswers({ ...answers, [currentQuestion.id]: e.target.value })
-            }
-            placeholder="Type your answer here..."
-            className="answer-textarea"
-          />
+          <div className="answer-section">
+            <h5>Your Answer</h5>
+            <textarea
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => 
+                setAnswers({ ...answers, [currentQuestion.id]: e.target.value })
+              }
+              placeholder="Type your answer here..."
+              className="answer-textarea"
+              rows="10"
+            />
+          </div>
         )}
       </div>
 
@@ -116,7 +242,7 @@ const InterviewRoom = ({ interview, onComplete, onExit }) => {
           disabled={currentQuestionIndex === 0 || isSubmitting}
           className="nav-button"
         >
-          Previous
+          ← Previous
         </button>
         
         <button 
@@ -125,7 +251,7 @@ const InterviewRoom = ({ interview, onComplete, onExit }) => {
           className="submit-button"
         >
           {isSubmitting ? 'Submitting...' : 
-           currentQuestionIndex < interview.questions.length - 1 ? 'Next' : 'Submit Interview'}
+           currentQuestionIndex < questions.length - 1 ? 'Next Question →' : 'Complete Interview ✓'}
         </button>
       </div>
     </div>

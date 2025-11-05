@@ -4,6 +4,7 @@ import com.interviewcoaching.dto.interview.QuestionRequest;
 import com.interviewcoaching.models.interview.Question;
 import com.interviewcoaching.models.interview.TestCase;
 import com.interviewcoaching.services.interview.QuestionService;
+import com.interviewcoaching.services.interview.QuestionBankService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,54 @@ public class QuestionController {
     
     @Autowired
     private QuestionService questionService;
+    
+    @Autowired
+    private QuestionBankService questionBankService;
+    
+    /**
+     * Seed the database with sample questions
+     */
+    @PostMapping("/seed")
+    public ResponseEntity<?> seedQuestions() {
+        try {
+            questionBankService.seedQuestions();
+            
+            long count = questionService.getAllQuestions().size();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Questions seeded successfully");
+            response.put("count", count);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * Force reseed - deletes all questions and creates new ones
+     */
+    @PostMapping("/force-seed")
+    public ResponseEntity<?> forceSeedQuestions() {
+        try {
+            questionBankService.forceReseedQuestions();
+            
+            long count = questionService.getAllQuestions().size();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Questions force reseeded successfully");
+            response.put("count", count);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
     
     /**
      * Get all questions

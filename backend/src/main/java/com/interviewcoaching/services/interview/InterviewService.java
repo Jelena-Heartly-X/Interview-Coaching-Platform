@@ -67,21 +67,63 @@ public class InterviewService {
     }
 
     private List<Question> selectQuestions(String topic, String difficulty, int count) {
-        // Get questions by topic and difficulty
-        List<Question> questions = questionRepository
-            .findByCategoryAndDifficultyLevel(topic, difficulty, PageRequest.of(0, count));
+        List<Question> questions = new ArrayList<>();
         
-        if (questions.size() < count) {
-            // If not enough questions, get more from related categories
-            int remaining = count - questions.size();
-            List<Question> additional = questionRepository
-                .findByDifficultyLevel(difficulty, PageRequest.of(0, remaining));
-            questions.addAll(additional);
+        try {
+            // Try to get questions by exact category and difficulty
+            questions = questionRepository
+                .findRandomQuestionsByCategoryAndDifficulty(topic, difficulty, count);
+            
+            if (questions.size() < count) {
+                System.out.println("Not enough questions for category: " + topic + ", difficulty: " + difficulty);
+                System.out.println("Found " + questions.size() + " questions, need " + count);
+                
+                // If not enough, get more by difficulty only
+                int remaining = count - questions.size();
+                List<Question> additional = questionRepository
+                    .findRandomQuestionsByDifficulty(difficulty, remaining);
+                
+                if (additional != null && !additional.isEmpty()) {
+                    // Avoid duplicates
+                    Set<Long> existingIds = questions.stream()
+                        .map(Question::getId)
+                        .collect(Collectors.toSet());
+                    
+                    additional.stream()
+                        .filter(q -> !existingIds.contains(q.getId()))
+                        .limit(remaining)
+                        .forEach(questions::add);
+                }
+            }
+            
+            if (questions.size() < count) {
+                System.out.println("Still not enough questions. Getting any available questions.");
+                // Last resort: get any questions
+                int remaining = count - questions.size();
+                PageRequest pageRequest = PageRequest.of(0, remaining + 10);
+                List<Question> allQuestions = questionRepository.findAll(pageRequest).getContent();
+                
+                Set<Long> existingIds = questions.stream()
+                    .map(Question::getId)
+                    .collect(Collectors.toSet());
+                
+                allQuestions.stream()
+                    .filter(q -> !existingIds.contains(q.getId()))
+                    .limit(remaining)
+                    .forEach(questions::add);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Error selecting questions: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Fallback: get any questions
+            PageRequest pageRequest = PageRequest.of(0, count);
+            questions = questionRepository.findAll(pageRequest).getContent();
         }
         
-        // Shuffle and limit to requested count
-        Collections.shuffle(questions);
-        return questions.stream().limit(count).collect(Collectors.toList());
+        System.out.println("Selected " + questions.size() + " questions for interview");
+        return questions;
     }
 
     private void saveInterviewQuestions(Interview interview, List<Question> questions) {
@@ -219,9 +261,23 @@ public class InterviewService {
         return interviewRepository.findByUserIdOrderByStartTimeDesc(user.getId());
     }
     
+    @Transactional(readOnly = true)
     public Interview getInterviewDetails(Long interviewId, User user) {
-        return interviewRepository.findByIdAndUserId(interviewId, user.getId())
+        Interview interview = interviewRepository.findByIdAndUserId(interviewId, user.getId())
             .orElseThrow(() -> new IllegalArgumentException("Interview not found or access denied"));
+        
+        // Eagerly load interview questions to prevent lazy loading issues
+        interview.getInterviewQuestions().size();
+        
+        // Eagerly load questions within interview questions
+        interview.getInterviewQuestions().forEach(iq -> {
+            if (iq.getQuestion() != null) {
+                // Touch the question to load it
+                iq.getQuestion().getTitle();
+            }
+        });
+        
+        return interview;
     }
     
     /**

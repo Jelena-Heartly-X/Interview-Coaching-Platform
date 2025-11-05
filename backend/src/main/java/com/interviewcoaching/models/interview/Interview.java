@@ -1,6 +1,7 @@
 // Interview.java
 package com.interviewcoaching.models.interview;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.interviewcoaching.models.auth.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,10 +16,12 @@ public class Interview {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slot_id")
     private InterviewSlot slot;

@@ -26,4 +26,21 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     // Custom query to find random questions by category
     @Query(value = "SELECT * FROM questions WHERE category = :category ORDER BY RANDOM() LIMIT :limit", nativeQuery = true)
     List<Question> findRandomQuestionsByCategory(@Param("category") String category, @Param("limit") int limit);
+    
+    // Find random questions by category and difficulty
+    @Query(value = "SELECT * FROM questions WHERE category = :category AND difficulty_level = :difficultyLevel ORDER BY RANDOM() LIMIT :limit", nativeQuery = true)
+    List<Question> findRandomQuestionsByCategoryAndDifficulty(@Param("category") String category, @Param("difficultyLevel") String difficultyLevel, @Param("limit") int limit);
+    
+    // Find random questions by difficulty
+    @Query(value = "SELECT * FROM questions WHERE difficulty_level = :difficultyLevel ORDER BY RANDOM() LIMIT :limit", nativeQuery = true)
+    List<Question> findRandomQuestionsByDifficulty(@Param("difficultyLevel") String difficultyLevel, @Param("limit") int limit);
+    
+    // Find questions by category
+    List<Question> findByCategory(String category);
+    
+    // Count questions by category
+    long countByCategory(String category);
+    
+    // Count questions by difficulty
+    long countByDifficultyLevel(Question.DifficultyLevel difficultyLevel);
 }
