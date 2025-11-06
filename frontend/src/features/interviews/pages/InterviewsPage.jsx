@@ -49,8 +49,14 @@ const mockInterview = {
   return (
     <div className="interviews-page">
       <header className="page-header">
-        <h1>Interview Preparation</h1>
-        <p>Practice and improve your interview skills with our interactive platform</p>
+        <h1>
+          <span className="header-icon">🎯</span>
+          Interview Preparation
+          <span className="header-icon">💼</span>
+        </h1>
+        <p>
+          🚀 Practice and improve your interview skills with our AI-powered interactive platform
+        </p>
       </header>
 
       <main className="interview-container">

@@ -84,7 +84,7 @@ const InterviewLobby = () => {
       <div className="lobby-container">
         <div className="lobby-header">
           <h1 className="lobby-title">
-            <span className="title-icon">🎯</span>
+            <span className="title-icon"></span>
             Configure Your Interview
           </h1>
           <p className="lobby-subtitle">
@@ -208,7 +208,7 @@ const InterviewLobby = () => {
               </>
             ) : (
               <>
-                <span className="btn-icon">🚀</span>
+                <span className="btn-icon"></span>
                 <span>Start Interview Now</span>
               </>
             )}
