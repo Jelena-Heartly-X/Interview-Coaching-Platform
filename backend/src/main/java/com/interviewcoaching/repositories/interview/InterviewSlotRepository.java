@@ -28,8 +28,8 @@ public interface InterviewSlotRepository extends JpaRepository<InterviewSlot, Lo
     // Other existing methods...
     @Modifying
     @Transactional
-    @Query("UPDATE InterviewSlot s SET s.booked = true, s.bookedBy.id = :userId, s.updatedAt = CURRENT_TIMESTAMP WHERE s.id = :slotId AND s.booked = false")
-    int bookSlot(@Param("slotId") Long slotId, @Param("userId") Long userId);
+    @Query("UPDATE InterviewSlot s SET s.booked = true, s.status = 'BOOKED' WHERE s.id = :slotId AND s.booked = false")
+    int bookSlot(@Param("slotId") Long slotId);
     
     // Add other repository methods as needed
     @Query("SELECT s FROM InterviewSlot s WHERE s.booked = false AND s.scheduledDateTime > :dateTime")

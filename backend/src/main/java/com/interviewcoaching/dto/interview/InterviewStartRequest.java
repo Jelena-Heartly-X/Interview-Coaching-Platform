@@ -5,8 +5,6 @@ import javax.validation.constraints.NotBlank;
 
 public class InterviewStartRequest {
     
-    private Long slotId;
-    
     @NotBlank(message = "Topic is required")
     private String topic;
     
@@ -16,25 +14,20 @@ public class InterviewStartRequest {
     @Min(value = 1, message = "At least 1 question is required")
     private Integer questionCount = 5;
     
+    @Min(value = 5, message = "Duration must be at least 5 minutes")
+    private Integer duration = 30; // Duration in minutes
+    
     // Constructors
     public InterviewStartRequest() {}
     
-    public InterviewStartRequest(Long slotId, String topic, String difficultyLevel, Integer questionCount) {
-        this.slotId = slotId;
+    public InterviewStartRequest(String topic, String difficultyLevel, Integer questionCount, Integer duration) {
         this.topic = topic;
         this.difficultyLevel = difficultyLevel;
         this.questionCount = questionCount;
+        this.duration = duration;
     }
     
     // Getters and Setters
-    public Long getSlotId() {
-        return slotId;
-    }
-    
-    public void setSlotId(Long slotId) {
-        this.slotId = slotId;
-    }
-    
     public String getTopic() {
         return topic;
     }
@@ -57,5 +50,23 @@ public class InterviewStartRequest {
     
     public void setQuestionCount(Integer questionCount) {
         this.questionCount = questionCount;
+    }
+    
+    public Integer getDuration() {
+        return duration;
+    }
+    
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+    
+    @Override
+    public String toString() {
+        return "InterviewStartRequest{" +
+                "topic='" + topic + '\'' +
+                ", difficultyLevel='" + difficultyLevel + '\'' +
+                ", questionCount=" + questionCount +
+                ", duration=" + duration +
+                " minutes}";
     }
 }

@@ -39,12 +39,23 @@ public class InterviewController {
     @PostMapping("/start")
     public ResponseEntity<?> startInterview(@Valid @RequestBody InterviewStartRequest request, Principal principal) {
         try {
+            System.out.println("===== START INTERVIEW REQUEST =====");
+            System.out.println("Request: " + request);
+            System.out.println("Topic: " + request.getTopic());
+            System.out.println("Difficulty: " + request.getDifficultyLevel());
+            System.out.println("Question Count: " + request.getQuestionCount());
+            System.out.println("Duration: " + request.getDuration() + " minutes");
+            
             // Get current user
             String username = principal != null ? principal.getName() : "testuser";
+            System.out.println("Username: " + username);
             User user = userService.getUserByUsernameOrEmail(username);
+            System.out.println("User found: " + user.getId());
             
             // Start interview
+            System.out.println("Calling interviewService.startInterview...");
             Interview interview = interviewService.startInterview(user, request);
+            System.out.println("Interview created with ID: " + interview.getId());
             
             // Convert to DTOs to avoid serialization issues
             InterviewDetailsDTO interviewDTO = new InterviewDetailsDTO(interview);
@@ -60,11 +71,19 @@ public class InterviewController {
             response.put("questions", questionDTOs);
             response.put("message", "Interview started successfully");
             
+            System.out.println("===== START INTERVIEW SUCCESS =====");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.err.println("===== START INTERVIEW ERROR =====");
+            System.err.println("Error Type: " + e.getClass().getName());
+            System.err.println("Error Message: " + e.getMessage());
+            System.err.println("Stack Trace:");
+            e.printStackTrace();
+            System.err.println("===================================");
+            
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
-            e.printStackTrace(); // Log the error
+            error.put("type", e.getClass().getSimpleName());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
@@ -112,14 +131,18 @@ public class InterviewController {
             // Complete the interview
             Interview interview = interviewService.completeInterview(interviewId, user);
             
+            // Convert to DTO to avoid serialization issues
+            InterviewDetailsDTO interviewDTO = new InterviewDetailsDTO(interview);
+            
             Map<String, Object> response = new HashMap<>();
-            response.put("interview", interview);
+            response.put("interview", interviewDTO);
             response.put("message", "Interview completed successfully");
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
+            e.printStackTrace(); // Log the error
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }

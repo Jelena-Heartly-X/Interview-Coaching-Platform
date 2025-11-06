@@ -18,6 +18,8 @@ const InterviewRoom = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showResults, setShowResults] = useState(false);
+  const [results, setResults] = useState(null);
   const timerRef = useRef(null);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -31,6 +33,8 @@ const InterviewRoom = () => {
         
         const response = await interviewApi.getInterview(interviewId);
         console.log('Interview data received:', response);
+        console.log('Questions array:', response.questions);
+        console.log('First question:', response.questions?.[0]);
         
         if (response.interview) {
           setInterview(response.interview);
@@ -84,11 +88,14 @@ const InterviewRoom = () => {
     if (isSubmitting || !currentQuestion) return;
     
     setIsSubmitting(true);
-    console.log('Submitting answer for question:', currentQuestion.id);
+    console.log('Current question object:', currentQuestion);
+    console.log('Question ID:', currentQuestion.id);
+    console.log('Interview ID:', interview.id);
     
     try {
       const answerData = {
-        answerText: answers[currentQuestion.id] || '',
+        questionId: currentQuestion.id,
+        answer: answers[currentQuestion.id] || '',
         codeSubmission: code,
         programmingLanguage: 'java',
         timeTakenSeconds: timeElapsed,
@@ -127,14 +134,18 @@ const InterviewRoom = () => {
       const response = await interviewApi.completeInterview(interview.id);
       console.log('Interview completed:', response);
       
-      // Navigate to results page or dashboard
-      alert('Interview completed successfully!');
-      navigate('/interviews');
+      // Store results and show results screen
+      setResults(response.interview);
+      setShowResults(true);
     } catch (error) {
       console.error('Error completing interview:', error);
       alert('Interview completed but there was an error processing results.');
       navigate('/interviews');
     }
+  };
+
+  const handleViewInterviews = () => {
+    navigate('/interviews');
   };
 
   const formatTime = (seconds) => {
@@ -167,6 +178,70 @@ const InterviewRoom = () => {
     return (
       <div className="interview-room">
         <div className="error">No interview data available</div>
+      </div>
+    );
+  }
+
+  // Show results screen after completion
+  if (showResults && results) {
+    return (
+      <div className="interview-room">
+        <div className="results-container">
+          <div className="results-header">
+            <h1>🎉 Interview Completed!</h1>
+            <p className="results-subtitle">Great job completing your {interview.topic} interview!</p>
+          </div>
+
+          <div className="results-card">
+            <div className="score-section">
+              <h2>Your Score</h2>
+              <div className="score-display">
+                <span className="score-value">{results.totalScore || 0}</span>
+                <span className="score-label">/ {results.maxScore || 0}</span>
+              </div>
+              <div className="score-percentage">
+                {results.maxScore > 0 ? Math.round((results.totalScore / results.maxScore) * 100) : 0}%
+              </div>
+              <div className="score-bar">
+                <div 
+                  className="score-fill" 
+                  style={{ width: `${results.maxScore > 0 ? (results.totalScore / results.maxScore) * 100 : 0}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="stats-section">
+              <div className="stat-item">
+                <span className="stat-label">Questions Answered</span>
+                <span className="stat-value">{results.questionCount || 0}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Difficulty Level</span>
+                <span className="stat-value">{results.difficultyLevel || 'N/A'}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Time Taken</span>
+                <span className="stat-value">{formatTime(timeElapsed)}</span>
+              </div>
+            </div>
+
+            <div className="feedback-section">
+              <h3>Feedback</h3>
+              <p className="feedback-text">
+                {results.feedback || 'No feedback available yet. Keep practicing!'}
+              </p>
+            </div>
+
+            <div className="results-actions">
+              <button className="btn-primary" onClick={handleViewInterviews}>
+                View All Interviews
+              </button>
+              <button className="btn-secondary" onClick={() => navigate('/dashboard')}>
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

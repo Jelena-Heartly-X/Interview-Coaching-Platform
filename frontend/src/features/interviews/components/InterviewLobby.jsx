@@ -1,38 +1,18 @@
 // frontend/src/features/interviews/components/InterviewLobby.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { interviewApi } from '../services/interviewApi';
 import { useNavigate } from 'react-router-dom';
 import './InterviewLobby.css';
 
 const InterviewLobby = () => {
-  const [slots, setSlots] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [interviewConfig, setInterviewConfig] = useState({
-    interviewType: 'DSA',
+    topic: 'DSA',
     difficultyLevel: 'INTERMEDIATE',
-    company: '',
-    duration: 30, // in minutes
+    duration: 30,
   });
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchAvailableSlots = async () => {
-      try {
-        setLoading(true);
-        const response = await interviewApi.getAvailableSlots();
-        setSlots(response);
-      } catch (err) {
-        console.error('Error fetching slots:', err);
-        setError('Failed to load interview slots. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAvailableSlots();
-  }, []);
 
   const handleConfigChange = (e) => {
     const { name, value } = e.target;
@@ -47,145 +27,193 @@ const InterviewLobby = () => {
       setLoading(true);
       setError('');
       
-      // Map frontend config to backend request format
+      // Calculate question count based on duration (~6 minutes per question)
+      const questionCount = Math.max(3, Math.floor(interviewConfig.duration / 6));
+      
       const requestData = {
-        topic: interviewConfig.interviewType || 'TECHNICAL',
-        difficultyLevel: interviewConfig.difficultyLevel || 'MEDIUM',
-        questionCount: Math.floor(interviewConfig.duration / 6) || 5, // ~6 minutes per question
-        ...(selectedSlot && { slotId: selectedSlot.id })
+        topic: interviewConfig.topic,
+        difficultyLevel: interviewConfig.difficultyLevel,
+        questionCount: questionCount,
+        duration: interviewConfig.duration
       };
       
-      console.log('Starting interview with data:', requestData);
+      console.log('🚀 Starting interview with:', requestData);
       
       const response = await interviewApi.startInterview(requestData);
       
-      console.log('Interview started successfully:', response);
+      console.log('✅ Interview started successfully:', response);
       
-      // Navigate to interview room with the created interview ID
+      // Navigate to interview room
       if (response.interview && response.interview.id) {
         navigate(`/interview/${response.interview.id}`);
       } else if (response.interviewId || response.id) {
         navigate(`/interview/${response.interviewId || response.id}`);
-      } else {
-        // For testing - create a mock interview session
-        const mockInterviewId = Date.now();
-        navigate(`/interview/${mockInterviewId}`, { 
-          state: { 
-            config: interviewConfig,
-            mockMode: true 
-          }
-        });
       }
     } catch (err) {
-      console.error('Error starting interview:', err);
-      setError('Failed to start interview. Please try again.');
+      console.error('❌ Error starting interview:', err);
+      setError(err.response?.data?.error || 'Failed to start interview. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div className="loading">Loading interview configuration...</div>;
-  }
+  const topics = [
+    { value: 'DSA', label: '📊 Data Structures & Algorithms', icon: '🔢' },
+    { value: 'DBMS', label: '🗄️ Database Management', icon: '💾' },
+    { value: 'OS', label: '🖥️ Operating Systems', icon: '⚙️' },
+    { value: 'OOP', label: '🎯 Object-Oriented Programming', icon: '🔷' },
+    { value: 'WEB_DEV', label: '🌐 Web Development', icon: '🚀' },
+    { value: 'SYSTEM_DESIGN', label: '🏗️ System Design', icon: '🏛️' }
+  ];
+
+  const difficulties = [
+    { value: 'BEGINNER', label: 'Beginner', icon: '🌱', color: '#10B981' },
+    { value: 'INTERMEDIATE', label: 'Intermediate', icon: '⚡', color: '#F59E0B' },
+    { value: 'ADVANCED', label: 'Advanced', icon: '🔥', color: '#EF4444' }
+  ];
+
+  const durations = [
+    { value: 15, label: '15 min', desc: 'Quick Practice' },
+    { value: 30, label: '30 min', desc: 'Standard' },
+    { value: 45, label: '45 min', desc: 'Extended' },
+    { value: 60, label: '60 min', desc: 'Full Session' }
+  ];
 
   return (
-    <div className="interview-lobby">
-      <h2>Configure Your Interview</h2>
-      
-      <div className="config-section">
-        <div className="form-group">
-          <label>Interview Topic:</label>
-          <select 
-            name="interviewType" 
-            value={interviewConfig.interviewType}
-            onChange={handleConfigChange}
-            className="form-control"
-          >
-            <option value="DSA">Data Structures & Algorithms</option>
-            <option value="DBMS">Database Management</option>
-            <option value="OS">Operating Systems</option>
-            <option value="OOP">Object-Oriented Programming</option>
-            <option value="WEB_DEV">Web Development</option>
-            <option value="SYSTEM_DESIGN">System Design</option>
-          </select>
+    <div className="interview-lobby-modern">
+      <div className="lobby-container">
+        <div className="lobby-header">
+          <h1 className="lobby-title">
+            <span className="title-icon">🎯</span>
+            Configure Your Interview
+          </h1>
+          <p className="lobby-subtitle">
+            Choose your topic, difficulty, and duration to start practicing
+          </p>
         </div>
 
-        <div className="form-group">
-          <label>Difficulty Level:</label>
-          <select 
-            name="difficultyLevel" 
-            value={interviewConfig.difficultyLevel}
-            onChange={handleConfigChange}
-            className="form-control"
-          >
-            <option value="BEGINNER">Beginner</option>
-            <option value="INTERMEDIATE">Intermediate</option>
-            <option value="ADVANCED">Advanced</option>
-          </select>
-        </div>
+        {error && (
+          <div className="alert-error">
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
 
-        <div className="form-group">
-          <label>Company (Optional):</label>
-          <input
-            type="text"
-            name="company"
-            value={interviewConfig.company}
-            onChange={handleConfigChange}
-            placeholder="E.g., Google, Amazon, etc."
-            className="form-control"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Duration (minutes):</label>
-          <select
-            name="duration"
-            value={interviewConfig.duration}
-            onChange={handleConfigChange}
-            className="form-control"
-          >
-            <option value={30}>30 minutes</option>
-            <option value={45}>45 minutes</option>
-            <option value={60}>60 minutes</option>
-          </select>
-        </div>
-      </div>
-
-      <h3>Available Time Slots (Optional)</h3>
-      {error && <div className="error-message">{error}</div>}
-      
-      {slots.length === 0 ? (
-        <p className="info-message">No pre-scheduled slots available. You can still start a practice interview with your configuration above!</p>
-      ) : (
-        <div className="slots-container">
-          {slots.map((slot) => (
-            <div 
-              key={slot.id}
-              className={`slot-card ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
-              onClick={() => setSelectedSlot(slot)}
-            >
-              <div className="slot-time">
-                {new Date(slot.scheduledDateTime).toLocaleString()}
-              </div>
-              <div className="slot-mentor">
-                Mentor: {slot.mentor?.name || 'Available'}
-              </div>
-              <div className="slot-duration">
-                Duration: {slot.durationMinutes} minutes
-              </div>
+        <div className="config-grid">
+          {/* Topic Selection */}
+          <div className="config-card">
+            <label className="config-label">
+              <span className="label-icon">📚</span>
+              Interview Topic
+            </label>
+            <div className="topic-grid">
+              {topics.map((topic) => (
+                <button
+                  key={topic.value}
+                  className={`topic-btn ${interviewConfig.topic === topic.value ? 'active' : ''}`}
+                  onClick={() => setInterviewConfig(prev => ({ ...prev, topic: topic.value }))}
+                >
+                  <span className="topic-icon">{topic.icon}</span>
+                  <span className="topic-label">{topic.label}</span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
 
-      <div className="actions">
-        <button
-          onClick={handleStartInterview}
-          disabled={loading}
-          className="btn btn-primary start-button"
-        >
-          {loading ? 'Starting...' : 'Start Interview'}
-        </button>
+          {/* Difficulty Selection */}
+          <div className="config-card">
+            <label className="config-label">
+              <span className="label-icon">⚡</span>
+              Difficulty Level
+            </label>
+            <div className="difficulty-grid">
+              {difficulties.map((diff) => (
+                <button
+                  key={diff.value}
+                  className={`difficulty-btn ${interviewConfig.difficultyLevel === diff.value ? 'active' : ''}`}
+                  onClick={() => setInterviewConfig(prev => ({ ...prev, difficultyLevel: diff.value }))}
+                  style={{ '--diff-color': diff.color }}
+                >
+                  <span className="diff-icon">{diff.icon}</span>
+                  <span className="diff-label">{diff.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Duration Selection */}
+          <div className="config-card">
+            <label className="config-label">
+              <span className="label-icon">⏱️</span>
+              Interview Duration
+            </label>
+            <div className="duration-grid">
+              {durations.map((dur) => (
+                <button
+                  key={dur.value}
+                  className={`duration-btn ${interviewConfig.duration === dur.value ? 'active' : ''}`}
+                  onClick={() => setInterviewConfig(prev => ({ ...prev, duration: dur.value }))}
+                >
+                  <span className="duration-time">{dur.label}</span>
+                  <span className="duration-desc">{dur.desc}</span>
+                  <span className="duration-questions">
+                    ~{Math.max(3, Math.floor(dur.value / 6))} questions
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Interview Summary */}
+        <div className="interview-summary">
+          <h3 className="summary-title">Interview Summary</h3>
+          <div className="summary-details">
+            <div className="summary-item">
+              <span className="summary-label">Topic:</span>
+              <span className="summary-value">
+                {topics.find(t => t.value === interviewConfig.topic)?.label}
+              </span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Difficulty:</span>
+              <span className="summary-value">
+                {difficulties.find(d => d.value === interviewConfig.difficultyLevel)?.label}
+              </span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Duration:</span>
+              <span className="summary-value">{interviewConfig.duration} minutes</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Questions:</span>
+              <span className="summary-value">
+                ~{Math.max(3, Math.floor(interviewConfig.duration / 6))} questions
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Start Button */}
+        <div className="actions-container">
+          <button
+            onClick={handleStartInterview}
+            disabled={loading}
+            className="start-interview-btn"
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                <span>Starting Interview...</span>
+              </>
+            ) : (
+              <>
+                <span className="btn-icon">🚀</span>
+                <span>Start Interview Now</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
