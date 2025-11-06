@@ -18,7 +18,6 @@ C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interv
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\models\mocktest\UserSubjectProgressId.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\services\mocktest\TestAnalysisService.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\controllers\auth\AuthController.java
-C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\repositories\mocktest\MockTestQuestionRepository.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\repositories\mocktest\LeaderboardEntryRepository.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\models\mocktest\AptitudeQuestion.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\repositories\BanterRepository.java
@@ -85,6 +84,7 @@ C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interv
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\repositories\mocktest\BadgeRepository.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\config\JwtAuthenticationFilter.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\controllers\SelfNotesController.java
+C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\repositories\mocktest\QuestionRepository.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\models\auth\User.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\controllers\mocktest\RecommendationController.java
 C:\Users\Nandhana S\Interview-Coaching-Platform\backend\src\main\java\com\interviewcoaching\models\mocktest\MockTest.java

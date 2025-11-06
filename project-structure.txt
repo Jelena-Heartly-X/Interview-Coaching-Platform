@@ -1,0 +1,283 @@
+Interview Coaching Platform
+├── frontend/
+│   ├── public/
+│   │   ├── assets/
+│   │   │   └── images/
+│   │   │       ├── BG2.png
+│   │   │       ├── forgot_password1.png
+│   │   │       ├── forgot_password2.png
+│   │   │       ├── login1.png
+│   │   │       ├── login2.png
+│   │   │       ├── login3.png
+│   │   │       ├── login_img1.png
+│   │   │       ├── login_img2.png
+│   │   │       └── sign_up1.png
+│   │   ├── PrivacyPolicy.html
+│   │   └── TermsOfService.html
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── providers/
+│   │   │   │   ├── AppProviders.jsx
+│   │   │   │   ├── AuthProvider.jsx
+│   │   │   │   └── ThemeProvider.jsx
+│   │   │   ├── App.css
+│   │   │   └── App.jsx
+│   │   ├── features/
+│   │   │   ├── ai-coach/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useAICoach.js
+│   │   │   │   │   └── useFeedbackAnalysis.js
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── aiCoachApi.js
+│   │   │   │   │   └── openAIService.js
+│   │   │   │   └── index.js
+│   │   │   ├── auth/
+│   │   │   │   ├── components/
+│   │   │   │   │   ├── LoginForm/
+│   │   │   │   │   │   ├── LoginForm.css
+│   │   │   │   │   │   └── LoginForm.jsx
+│   │   │   │   │   └── RegisterForm/
+│   │   │   │   │       ├── RegisterForm.css
+│   │   │   │   │       └── RegisterForm.jsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useLogin.js
+│   │   │   │   │   └── useRegister.js
+│   │   │   │   ├── pages/
+│   │   │   │   │   ├── ForgotPassword/
+│   │   │   │   │   │   ├── ForgotPassword.css
+│   │   │   │   │   │   └── ForgotPassword.jsx
+│   │   │   │   │   ├── Login/
+│   │   │   │   │   │   ├── Login.css
+│   │   │   │   │   │   └── Login.jsx
+│   │   │   │   │   └── Register/
+│   │   │   │   │       ├── Register.css
+│   │   │   │   │       └── Register.jsx
+│   │   │   │   ├── services/
+│   │   │   │   │   └── authApi.js
+│   │   │   │   └── index.js
+│   │   │   ├── banter-area/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useChat.js
+│   │   │   │   │   ├── useCommunity.js
+│   │   │   │   │   └── useRealTime.js
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── chatApi.js
+│   │   │   │   │   └── socketService.js
+│   │   │   │   └── index.js
+│   │   │   ├── gamification/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useGamification.js
+│   │   │   │   │   └── useProgress.js
+│   │   │   │   ├── services/
+│   │   │   │   │   └── gamificationApi.js
+│   │   │   │   └── index.js
+│   │   │   ├── home/
+│   │   │   │   └── pages/
+│   │   │   │       ├── Homepage.css
+│   │   │   │       └── Homepage.jsx
+│   │   │   ├── interviews/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useInterview.js
+│   │   │   │   │   ├── useSpeechAnalysis.js
+│   │   │   │   │   └── useVideoRecording.js
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── interviewApi.js
+│   │   │   │   │   └── videoService.js
+│   │   │   │   └── index.js
+│   │   │   ├── mock-tests/
+│   │   │   │   ├── components/
+│   │   │   │   │   └── DebugPanel.jsx
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useCodeExecution.js
+│   │   │   │   │   ├── useMockTest.js
+│   │   │   │   │   └── usePerformanceTracking.js
+│   │   │   │   ├── pages/
+│   │   │   │   │   ├── MockTestsHome/
+│   │   │   │   │   │   ├── MockTestsHome.css
+│   │   │   │   │   │   └── MockTestsHome.jsx
+│   │   │   │   │   ├── TestAttempt/
+│   │   │   │   │   │   ├── TestAttempt.css
+│   │   │   │   │   │   └── TestAttempt.jsx
+│   │   │   │   │   └── TestResults/
+│   │   │   │   │       ├── TestResults.css
+│   │   │   │   │       └── TestResults.jsx
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── codeExecutionService.js
+│   │   │   │   │   └── mockTestApi.js
+│   │   │   │   └── index.js
+│   │   │   ├── skill-builders/
+│   │   │   │   ├── hooks/
+│   │   │   │   │   ├── useCodingPractice.js
+│   │   │   │   │   ├── usePortfolio.js
+│   │   │   │   │   └── useResumeBuilder.js
+│   │   │   │   ├── services/
+│   │   │   │   │   ├── resumeService.js
+│   │   │   │   │   └── skillBuilderApi.js
+│   │   │   │   └── index.js
+│   │   │   └── user/
+│   │   │       ├── hooks/
+│   │   │       │   └── useUser.js
+│   │   │       ├── pages/
+│   │   │       │   └── Dashboard/
+│   │   │       │       ├── Dashboard.css
+│   │   │       │       └── Dashboard.jsx
+│   │   │       ├── services/
+│   │   │       │   └── useApi.js
+│   │   │       └── index.js
+│   │   ├── shared/
+│   │   │   ├── components/
+│   │   │   │   └── layout/
+│   │   │   ├── hooks/
+│   │   │   │   ├── useApi.js
+│   │   │   │   ├── useAuth.js
+│   │   │   │   ├── useDebounce.js
+│   │   │   │   ├── useLocalStorage.js
+│   │   │   │   ├── useRealTime.js
+│   │   │   │   ├── useSpeechToText.js
+│   │   │   │   └── useWebRTC.js
+│   │   │   ├── services/
+│   │   │   │   ├── apiClient.js
+│   │   │   │   ├── endpoints.js
+│   │   │   │   ├── interceptors.js
+│   │   │   │   ├── socketService.js
+│   │   │   │   └── storageService.js
+│   │   │   ├── styles/
+│   │   │   │   ├── themes/
+│   │   │   │   ├── animations.css
+│   │   │   │   ├── globals.css
+│   │   │   │   ├── mixins.css
+│   │   │   │   └── variables.css
+│   │   │   └── utils/
+│   │   │       ├── codeHelpers.js
+│   │   │       ├── constants.js
+│   │   │       ├── gamificationHelpers.js
+│   │   │       ├── helpers.js
+│   │   │       ├── interviewHelpers.js
+│   │   │       └── validators.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/
+│   │       │       └── interviewcoaching/
+│   │       │           ├── config/
+│   │       │           │   ├── DataInitializer.java
+│   │       │           │   ├── EnvironmentConfig.java
+│   │       │           │   ├── GlobalExceptionHandler.java
+│   │       │           │   ├── JwtAuthenticationEntryPoint.java
+│   │       │           │   ├── JwtAuthenticationFilter.java
+│   │       │           │   ├── MockTestConfig.java
+│   │       │           │   ├── RequestLoggingFilter.java
+│   │       │           │   ├── SecurityConfig.java
+│   │       │           │   ├── TwilioConfig.java
+│   │       │           │   └── dbConfig.java
+│   │       │           ├── controllers/
+│   │       │           │   ├── mocktest/
+│   │       │           │   │   ├── AnalyticsController.java
+│   │       │           │   │   ├── GamificationController.java
+│   │       │           │   │   ├── MockTestController.java
+│   │       │           │   │   ├── QuestionController.java
+│   │       │           │   │   ├── RecommendationController.java
+│   │       │           │   │   └── TestSessionController.java
+│   │       │           │   ├── AIController.java
+│   │       │           │   ├── BanterController.java
+│   │       │           │   ├── InterviewController.java
+│   │       │           │   └── TestController.java
+│   │       │           ├── dto/
+│   │       │           │   ├── AuthRequest.java
+│   │       │           │   ├── AuthResponse.java
+│   │       │           │   ├── MockTestDTO.java
+│   │       │           │   ├── PasswordResetRequest.java
+│   │       │           │   └── RegisterRequest.java
+│   │       │           ├── models/
+│   │       │           │   ├── auth/
+│   │       │           │   │   └── User.java
+│   │       │           │   ├── mocktest/
+│   │       │           │   │   ├── MockTest.java
+│   │       │           │   │   ├── MockTestQuestion.java
+│   │       │           │   │   ├── MockTestQuestionId.java
+│   │       │           │   │   ├── Subject.java
+│   │       │           │   │   ├── UserAnswer.java
+│   │       │           │   │   ├── UserBadge.java
+│   │       │           │   │   ├── UserBadgeId.java
+│   │       │           │   │   ├── UserMockTestAttempt.java
+│   │       │           │   │   ├── UserPoints.java
+│   │       │           │   │   ├── UserSubjectProgress.java
+│   │       │           │   │   └── UserSubjectProgressId.java
+│   │       │           │   ├── AIQuery.java
+│   │       │           │   ├── BanterMessage.java
+│   │       │           │   ├── Company.java
+│   │       │           │   ├── GDQuestion.java
+│   │       │           │   ├── InterviewQuestion.java
+│   │       │           │   └── SelfNote.java
+│   │       │           ├── repositories/
+│   │       │           │   ├── auth/
+│   │       │           │   │   └── UserRepository.java
+│   │       │           │   ├── mocktest/
+│   │       │           │   │   ├── AptitudeQuestionRepository.java
+│   │       │           │   │   ├── CourseRepository.java
+│   │       │           │   │   ├── LeaderboardEntryRepository.java
+│   │       │           │   │   ├── LeaderboardRepository.java
+│   │       │           │   │   ├── MockTestQuestionRepository.java
+│   │       │           │   │   ├── MockTestRepository.java
+│   │       │           │   │   ├── SubjectRepository.java
+│   │       │           │   │   ├── UserAnswerRepository.java
+│   │       │           │   │   ├── UserBadgeRepository.java
+│   │       │           │   │   ├── UserMockTestAttemptRepository.java
+│   │       │           │   │   ├── UserPointsRepository.java
+│   │       │           │   │   └── UserSubjectProgressRepository.java
+│   │       │           │   ├── AIRepository.java
+│   │       │           │   ├── BanterRepository.java
+│   │       │           │   ├── CompanyRepository.java
+│   │       │           │   ├── InterviewRepository.java
+│   │       │           │   └── SelfNotesRepository.java
+│   │       │           ├── services/
+│   │       │           │   ├── AI/
+│   │       │           │   │   └── AIService.java
+│   │       │           │   ├── auth/
+│   │       │           │   │   ├── AuthService.java
+│   │       │           │   │   ├── OtpService.java
+│   │       │           │   │   ├── SmsOtpService.java
+│   │       │           │   │   └── UserService.java
+│   │       │           │   ├── mocktest/
+│   │       │           │   │   ├── AnalyticsService.java
+│   │       │           │   │   ├── GamificationService.java
+│   │       │           │   │   ├── MockTestService.java
+│   │       │           │   │   ├── QuestionService.java
+│   │       │           │   │   ├── RecommendationService.java
+│   │       │           │   │   ├── TestAnalysisService.java
+│   │       │           │   │   └── TestSessionService.java
+│   │       │           │   ├── BanterService.java
+│   │       │           │   ├── InterviewService.java
+│   │       │           │   └── SelfNotesService.java
+│   │       │           └── utils/
+│   │       │               ├── auth/
+│   │       │               │   ├── EmailUtils.java
+│   │       │               │   └── JwtUtils.java
+│   │       │               └── mocktest/
+│   │       │                   ├── AIRecommendationEngine.java
+│   │       │                   ├── CodeExecutionService.java
+│   │       │                   ├── DataExportService.java
+│   │       │                   ├── NotificationService.java
+│   │       │                   ├── ReportGenerator.java
+│   │       │                   ├── ScoreCalculator.java
+│   │       │                   ├── TestGenerator.java
+│   │       │                   └── TestTimerService.java
+│   │       └── resources/
+│   │           ├── application.properties
+│   │           ├── cleanup.sql
+│   │           ├── data.sql
+│   │           └── mock.sql
+│   ├── application.properties
+│   └── pom.xml
+│
+└── LICENSE

@@ -647,3 +647,29 @@
     font-size: 2rem;
   }
 }
+
+.no-activity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.no-activity-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.no-activity-text h4 {
+  color: var(--silver);
+  margin-bottom: 0.5rem;
+}
+
+.no-activity-text p {
+  color: var(--silver-dark);
+  font-size: 0.9rem;
+}

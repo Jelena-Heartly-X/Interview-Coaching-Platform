@@ -10,6 +10,5 @@ com\interviewcoaching\controllers\auth\AuthController.class
 com\interviewcoaching\dto\AuthResponse.class
 com\interviewcoaching\repositories\auth\UserRepository.class
 com\interviewcoaching\config\SecurityConfig.class
-com\interviewcoaching\controllers\TestController.class
 com\interviewcoaching\controllers\auth\AuthController$MessageResponse.class
 com\interviewcoaching\config\JwtAuthenticationFilter.class

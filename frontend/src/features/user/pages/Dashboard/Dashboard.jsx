@@ -1,10 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMockTestData } from '../../../mock-tests/hooks/useMockTestData';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { mockTestData, loading: mockTestLoading } = useMockTestData();
+  
+  const [dashboardData, setDashboardData] = useState({
+    stats: {
+      testsCompleted: 0,
+      averageScore: '0%',
+      skillsImproved: 0,
+      hoursPracticed: 0
+    },
+    modules: {
+      mockTests: { 
+        progress: 0, 
+        available: 0 
+      },
+      interviews: { progress: 0, available: 0 },
+      banterArena: { progress: 0, active: 0 },
+      aiCoach: { progress: 0 }
+    },
+    recentActivity: []
+  });
+
+  // Update dashboard data when mockTestData changes
+  useEffect(() => {
+    setDashboardData(prev => ({
+      ...prev,
+      stats: {
+        ...prev.stats,
+        testsCompleted: mockTestData.completedTests,
+        averageScore: `${mockTestData.averageScore}%`
+      },
+      modules: {
+        ...prev.modules,
+        mockTests: { 
+          progress: mockTestData.progress, 
+          available: mockTestData.availableTests 
+        }
+      }
+    }));
+  }, [mockTestData]);
+
+  // Fetch additional dashboard data
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // TODO: Replace with actual API calls for other data
+        setDashboardData(prev => ({
+          ...prev,
+          stats: {
+            ...prev.stats,
+            skillsImproved: 0,
+            hoursPracticed: 0
+          },
+          modules: {
+            ...prev.modules,
+            interviews: { progress: 0, available: 0 },
+            banterArena: { progress: 0, active: 0 },
+            aiCoach: { progress: 0 }
+          },
+          recentActivity: []
+        }));
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const modules = [
     {
@@ -13,8 +81,8 @@ const Dashboard = () => {
       icon: '📊',
       description: 'Practice with realistic tests and get AI-powered feedback',
       color: '#7C3AED',
-      stats: '12 Tests Available',
-      progress: 65
+      stats: `${dashboardData.modules.mockTests.available} Tests Available`,
+      progress: dashboardData.modules.mockTests.progress
     },
     {
       id: 'interviews',
@@ -22,8 +90,8 @@ const Dashboard = () => {
       icon: '🎥',
       description: 'Simulate real interview scenarios with video recording',
       color: '#FBBF24',
-      stats: '5 Interview Types',
-      progress: 40
+      stats: `${dashboardData.modules.interviews.available} Interview Types`,
+      progress: dashboardData.modules.interviews.progress
     },
     {
       id: 'banter-arena',
@@ -31,8 +99,8 @@ const Dashboard = () => {
       icon: '💬',
       description: 'Connect with peers and join community discussions',
       color: '#FB923C',
-      stats: '24 Active Users',
-      progress: 80
+      stats: `${dashboardData.modules.banterArena.active} Active Users`,
+      progress: dashboardData.modules.banterArena.progress
     },
     {
       id: 'ai-coach',
@@ -41,45 +109,27 @@ const Dashboard = () => {
       description: 'Get personalized guidance and performance analysis',
       color: '#8B5CF6',
       stats: '24/7 Available',
-      progress: 30
+      progress: dashboardData.modules.aiCoach.progress
     }
   ];
 
   const stats = [
-    { value: '12', label: 'Tests Completed', color: '#7C3AED' },
-    { value: '78%', label: 'Avg. Score', color: '#FBBF24' },
-    { value: '3', label: 'Skills Improved', color: '#FB923C' },
-    { value: '15', label: 'Hours Practiced', color: '#8B5CF6' }
-  ];
-
-  const recentActivity = [
-    { 
-      id: 1, 
-      action: 'Completed Technical Mock', 
-      module: 'Mock Tests', 
-      time: '2 hours ago', 
-      score: '85%',
-      icon: '📊'
-    },
-    { 
-      id: 2, 
-      action: 'Joined Group Discussion', 
-      module: 'Banter Arena', 
-      time: '1 day ago',
-      icon: '💬'
-    },
-    { 
-      id: 3, 
-      action: 'AI Feedback Received', 
-      module: 'AI Coach', 
-      time: '2 days ago',
-      score: '92%',
-      icon: '🤖'
-    }
+    { value: dashboardData.stats.testsCompleted.toString(), label: 'Tests Completed', color: '#7C3AED' },
+    { value: dashboardData.stats.averageScore, label: 'Avg. Score', color: '#FBBF24' },
+    { value: dashboardData.stats.skillsImproved.toString(), label: 'Skills Improved', color: '#FB923C' },
+    { value: dashboardData.stats.hoursPracticed.toString(), label: 'Hours Practiced', color: '#8B5CF6' }
   ];
 
   const handleModuleClick = (moduleId) => {
-    navigate(`/${moduleId}`);
+    if (moduleId === 'mock-tests') {
+      navigate('/mock-tests');
+    } else if (moduleId === 'interviews') {
+      navigate('/interviews');
+    } else if (moduleId === 'banter-arena') {
+      navigate('/banter-arena');
+    } else if (moduleId === 'ai-coach') {
+      navigate('/ai-coach');
+    }
   };
 
   const handleLogout = () => {
@@ -149,7 +199,7 @@ const Dashboard = () => {
               </div>
               <div className="user-details">
                 <span className="user-name">{user.fullName || user.username}</span>
-                <span className="user-role">Premium Member</span>
+                <span className="user-role">Member</span>
               </div>
             </div>
             <button className="logout-btn" onClick={handleLogout}>
@@ -165,8 +215,8 @@ const Dashboard = () => {
         <section className="welcome-section">
           <div className="welcome-content">
             <div className="welcome-text">
-              <h1>Welcome back, {user.fullName || user.username}! 👋</h1>
-              <p>Your interview preparation journey continues. Track your progress and explore new challenges.</p>
+              <h1>Welcome, {user.fullName || user.username}! 👋</h1>
+              <p>Start your interview preparation journey. Track your progress as you learn and grow.</p>
             </div>
             <div className="welcome-stats">
               {stats.map((stat, index) => (
@@ -247,23 +297,33 @@ const Dashboard = () => {
             </div>
             
             <div className="activity-list">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="activity-item">
-                  <div className="activity-icon">{activity.icon}</div>
-                  <div className="activity-content">
-                    <h4>{activity.action}</h4>
-                    <p>{activity.module} • {activity.time}</p>
+              {dashboardData.recentActivity.length === 0 ? (
+                <div className="no-activity">
+                  <div className="no-activity-icon">📊</div>
+                  <div className="no-activity-text">
+                    <h4>No activity yet</h4>
+                    <p>Start practicing to see your progress here</p>
                   </div>
-                  {activity.score && (
-                    <div 
-                      className="activity-score"
-                      style={{ backgroundColor: `${activity.module === 'Mock Tests' ? '#7C3AED' : '#8B5CF6'}20`, color: activity.module === 'Mock Tests' ? '#7C3AED' : '#8B5CF6' }}
-                    >
-                      {activity.score}
-                    </div>
-                  )}
                 </div>
-              ))}
+              ) : (
+                dashboardData.recentActivity.map((activity) => (
+                  <div key={activity.id} className="activity-item">
+                    <div className="activity-icon">{activity.icon}</div>
+                    <div className="activity-content">
+                      <h4>{activity.action}</h4>
+                      <p>{activity.module} • {activity.time}</p>
+                    </div>
+                    {activity.score && (
+                      <div 
+                        className="activity-score"
+                        style={{ backgroundColor: `${activity.module === 'Mock Tests' ? '#7C3AED' : '#8B5CF6'}20`, color: activity.module === 'Mock Tests' ? '#7C3AED' : '#8B5CF6' }}
+                      >
+                        {activity.score}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -273,7 +333,7 @@ const Dashboard = () => {
             </div>
             
             <div className="actions-grid">
-              <button className="quick-action">
+              <button className="quick-action" onClick={() => navigate('/mock-tests')}>
                 <span className="action-icon">⚡</span>
                 <span className="action-text">Quick Test</span>
               </button>

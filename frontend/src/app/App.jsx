@@ -4,11 +4,11 @@ import Homepage from '../features/home/pages/Homepage';
 import Login from '../features/auth/pages/Login/Login';
 import Register from '../features/auth/pages/Register/Register';
 import ForgotPassword from '../features/auth/pages/ForgotPassword/ForgotPassword';
-import Dashboard from '../features/user/pages/Dashboard/Dashboard'; // Import your dashboard
+import Dashboard from '../features/user/pages/Dashboard/Dashboard';
+import { MockTestsHome, TestAttempt, TestResults } from '../features/mock-tests';
 import './App.css';
 
 // Temporary placeholder components
-const MockTestsPage = () => <div>Mock Tests Module - Coming Soon!</div>;
 const InterviewsPage = () => <div>Interviews Module - Coming Soon!</div>;
 const BanterArenaPage = () => <div>Banter Arena Module - Coming Soon!</div>;
 const AICoachPage = () => <div>AI Coach Module - Coming Soon!</div>;
@@ -28,7 +28,13 @@ function App() {
           
           {/* Protected Dashboard Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/mock-tests" element={<MockTestsPage />} />
+          
+          {/* Mock Tests Routes */}
+          <Route path="/mock-tests" element={<MockTestsHome />} />
+          <Route path="/mock-tests/attempt/:testId" element={<TestAttempt />} />
+          <Route path="/mock-tests/results/:attemptId" element={<TestResults />} />
+          
+          {/* Other Module Routes */}
           <Route path="/interviews" element={<InterviewsPage />} />
           <Route path="/banter-arena" element={<BanterArenaPage />} />
           <Route path="/ai-coach" element={<AICoachPage />} />
