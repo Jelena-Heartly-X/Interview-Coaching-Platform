@@ -14,12 +14,14 @@ const InterviewRoom = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [code, setCode] = useState('');
-  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(null); // Countdown timer
+  const [totalDuration, setTotalDuration] = useState(null); // Total duration in seconds
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState(null);
+  const [autoSubmitTriggered, setAutoSubmitTriggered] = useState(false);
   const timerRef = useRef(null);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -39,6 +41,26 @@ const InterviewRoom = () => {
         if (response.interview) {
           setInterview(response.interview);
           setQuestions(response.questions || []);
+          
+          // Calculate total duration from interview start time and end time
+          if (response.interview.endTime && response.interview.startTime) {
+            const start = new Date(response.interview.startTime);
+            const end = new Date(response.interview.endTime);
+            const durationMinutes = Math.floor((end - start) / 60000);
+            const durationSeconds = durationMinutes * 60;
+            
+            // Calculate time remaining
+            const now = new Date();
+            const remainingMs = end - now;
+            const remainingSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+            
+            setTotalDuration(durationSeconds);
+            setTimeRemaining(remainingSeconds);
+            
+            console.log('⏱️ Timer initialized:');
+            console.log('Duration:', durationMinutes, 'minutes');
+            console.log('Time remaining:', Math.floor(remainingSeconds / 60), 'minutes', remainingSeconds % 60, 'seconds');
+          }
           
           // Initialize code with template if available
           if (response.questions && response.questions[0]) {
@@ -60,20 +82,46 @@ const InterviewRoom = () => {
     }
   }, [interviewId]);
 
-  // Start timer when interview data is loaded
+  // Start countdown timer when interview data is loaded
   useEffect(() => {
-    if (interview && !timerRef.current) {
+    if (interview && timeRemaining !== null && !timerRef.current) {
+      console.log('🚀 Starting countdown timer...');
+      console.log('Initial time remaining:', timeRemaining, 'seconds');
+      
       timerRef.current = setInterval(() => {
-        setTimeElapsed(prev => prev + 1);
+        setTimeRemaining(prev => {
+          const newValue = prev <= 0 ? 0 : prev - 1;
+          if (newValue % 10 === 0 || newValue <= 10) {
+            console.log('⏱️ Time remaining:', newValue, 'seconds');
+          }
+          return newValue;
+        });
       }, 1000);
     }
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [interview]);
+  }, [interview]); // REMOVED timeRemaining from dependencies - THIS WAS THE BUG!
+  
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (timeRemaining === 0 && !autoSubmitTriggered && interview) {
+      console.log('⏰ TIME UP! Auto-submitting interview...');
+      setAutoSubmitTriggered(true);
+      
+      // Clear the timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      // Auto-complete the interview
+      handleCompleteInterview();
+    }
+  }, [timeRemaining, autoSubmitTriggered, interview]);
 
   // Update code template when question changes
   useEffect(() => {
@@ -93,12 +141,17 @@ const InterviewRoom = () => {
     console.log('Interview ID:', interview.id);
     
     try {
+      // Calculate time taken (total duration - time remaining)
+      const timeTaken = totalDuration && timeRemaining !== null 
+        ? totalDuration - timeRemaining 
+        : 0;
+      
       const answerData = {
         questionId: currentQuestion.id,
         answer: answers[currentQuestion.id] || '',
         codeSubmission: code,
         programmingLanguage: 'java',
-        timeTakenSeconds: timeElapsed,
+        timeTakenSeconds: timeTaken,
         hintsUsed: 0
       };
 
@@ -149,9 +202,29 @@ const InterviewRoom = () => {
   };
 
   const formatTime = (seconds) => {
+    if (seconds === null || seconds === undefined) return '00:00';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+  
+  // Get timer color based on remaining time
+  const getTimerColor = () => {
+    if (timeRemaining === null) return 'inherit';
+    const percentage = (timeRemaining / totalDuration) * 100;
+    if (percentage <= 10) return '#EF4444'; // Red - Critical
+    if (percentage <= 25) return '#F59E0B'; // Orange - Warning
+    return '#10B981'; // Green - Good
+  };
+  
+  // Get timer status message
+  const getTimerStatus = () => {
+    if (timeRemaining === null) return '';
+    if (timeRemaining === 0) return '⏰ TIME UP!';
+    const percentage = (timeRemaining / totalDuration) * 100;
+    if (percentage <= 10) return '🚨 HURRY UP!';
+    if (percentage <= 25) return '⚠️ Time running low';
+    return '✅ On track';
   };
 
   if (loading) {
@@ -221,7 +294,9 @@ const InterviewRoom = () => {
               </div>
               <div className="stat-item">
                 <span className="stat-label">Time Taken</span>
-                <span className="stat-value">{formatTime(timeElapsed)}</span>
+                <span className="stat-value">
+                  {totalDuration ? formatTime(totalDuration - (timeRemaining || 0)) : '00:00'}
+                </span>
               </div>
             </div>
 
@@ -253,7 +328,9 @@ const InterviewRoom = () => {
       <div className="header">
         <h2>{interview.title || 'Interview in Progress'}</h2>
         <div className="interview-info">
-          <span className="timer">Time: {formatTime(timeElapsed)}</span>
+          <span className="timer" style={{ color: getTimerColor(), fontWeight: 'bold' }}>
+            ⏱️ {formatTime(timeRemaining)} {getTimerStatus()}
+          </span>
           <span className="difficulty">{interview.difficultyLevel}</span>
         </div>
       </div>
@@ -261,8 +338,10 @@ const InterviewRoom = () => {
       <div className="question-section">
         <div className="question-header">
           <h3>Question {currentQuestionIndex + 1} of {questions.length}</h3>
-          <span className="question-type">{currentQuestion.questionType}</span>
-          <span className="points">{currentQuestion.points} points</span>
+          <div>
+            <span className="question-type">{currentQuestion.questionType}</span>
+            <span className="points">{currentQuestion.points} points</span>
+          </div>
         </div>
         
         <h4>{currentQuestion.title}</h4>
